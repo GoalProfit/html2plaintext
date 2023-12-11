@@ -1,6 +1,24 @@
-var cheerio = require('cheerio');
-var decode = require('he').decode;
-var plumb = require('plumb');
+const cheerio = require('cheerio');
+const decode = require('he').decode;
+
+const slice = Array.prototype.slice;
+
+// (val: Value, ...fns: Function) => Value
+function pipe(val) {
+  var fns = slice.call(arguments, 1)
+  return fns.reduce(function (val, fn) {
+    return fn(val)
+  }, val)
+}
+
+// compose functions
+// (...fns: Function) => (val: Value) => Value
+function plumb() {
+  var fns = slice.call(arguments)
+  return function (val) {
+    return pipe.apply(this, [val].concat(fns))
+  }
+}
 
 // "private" helper for ensuring html entities are properly escaped
 function _escapeHtml (input) {
